@@ -2,5 +2,5 @@
 
 | Nombre        | Github     |
 |---------------|------------|
-| Franco Méndez | fnmendez   |
-| Martín Álamos | wayoalamos |
+| Franco Méndez | [fnmendez](https://github.com/fnmendez)   |
+| Martín Álamos | [wayoalamos](https://github.com/wayoalamos) |
