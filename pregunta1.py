@@ -8,7 +8,10 @@ import scipy.sparse as sparse
 # import scipy.sparse as sparse
 
 df_train = pd.read_csv('files/training.csv',
-                        sep="\t")
+                        sep="\t",
+                        header=0,
+                        )
 print(df_train.head())
 
-photos_per_user = {} # {}
+
+#df.groupby(['userid']).count()
