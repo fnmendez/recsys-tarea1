@@ -7,31 +7,48 @@ import scipy.sparse as sparse
 # import implicit
 # import scipy.sparse as sparse
 
-df_train = pd.read_csv('files/training.csv')
+views = {} # user : numer_of_interactions
 
-# usuarios y cantidad de imagenes que vieron
-photos_by_user = df_train.groupby(['user']).count()[['image_id']].reset_index()
+fo = open("files/training.csv", "r")
+fo.readline()
+for line in fo.readlines():
+    user, image, time = line.rstrip().split(",")
+    if user in views:
+        views[user] += 1
+    else:
+        views[user] = 1
+fo.close()
 
-# ordenar y ver los 5 que vieron los mas grandes
-top_five = photos_by_user.sort_values(by=['image_id'], ascending=False).iloc[:5]
-print(top_five)
+user_interaction = {} # number_of_interactions : [user1, user2, ... ]
 
+for user in views:
+    if views[user] in user_interaction:
+        user_interaction[views[user]].append(user)
+    else:
+        user_interaction[views[user]] = [user]
 
+# get top 5
+top_five = [] # user1, user2, ...
+counter = 0
+for key, value in sorted(views.items(), key=lambda kv: kv[1], reverse=True):
+    top_five.append(key)
+    counter += 1
+    if counter > 4: break
 
-# cantidad de usuarios y cantidad de interacciones
-p = photos_by_user.groupby(['image_id']).count()[['user']].reset_index()
-p.columns = ['times_rated', 'amount_users']
-print(p.head())
+# lets graph!
+graph_data = [] # (number_of_interactions, number_of_users, percentage)
+for k in user_interaction:
+    tops_counter = 0
+    total_amount_users = len(user_interaction[k])
+    for user in user_interaction[k]:
+        if user in top_five:
+            tops_counter += 1
+    percentage = 100 * float(tops_counter) / float(total_amount_users)
+    print(tops_counter, total_amount_users, user_interaction[k], top_five)
+    graph_data.append((k, total_amount_users, percentage))
+graph_data = sorted(graph_data)
 
-
-
-
-
-# imagen y la cantidad de usuarios que la vieron
-users_by_photo = df_train.groupby(['image_id']).count()[['user']].reset_index()
-
-# ordenar y ver las 5 imagenes mas vistas
-image_top_five = users_by_photo.sort_values(by=['user'], ascending=False).iloc[:5]
-
-
-print(image_top_five.head())
+for a in graph_data:
+    #print(a)
+    pass
+# plot graph here!
