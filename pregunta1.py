@@ -44,11 +44,11 @@ for k in user_interaction:
         if user in top_five:
             tops_counter += 1
     percentage = 100 * float(tops_counter) / float(total_amount_users)
-    print(tops_counter, total_amount_users, user_interaction[k], top_five)
+    # print(tops_counter, total_amount_users, user_interaction[k], top_five)
     graph_data.append((k, total_amount_users, percentage))
 graph_data = sorted(graph_data)
 
-for a in graph_data:
-    #print(a)
-    pass
-# plot graph here!
+
+print(graph_data)
+plt.bar([i[0] for i in graph_data],[j[1] for j in graph_data])
+plt.show()
