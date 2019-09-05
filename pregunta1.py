@@ -3,6 +3,7 @@ import numpy as np
 import pyreclab
 import matplotlib.pyplot as plt
 import scipy.sparse as sparse
+import math
 
 # import implicit
 # import scipy.sparse as sparse
@@ -55,6 +56,30 @@ for key, value in sorted(image_views.items(), key=lambda kv: kv[1], reverse=True
     if counter > 4: break
 # finish get top 5
 
+
+# stats
+total_number_of_interactions = sum(views[u] for u in views)
+number_of_different_users = len(views)
+number_of_different_images = len(image_views)
+mean_image_per_user = sum(views[u] for u in views) / number_of_different_users
+de_image_per_user = math.sqrt((sum((views[u] - mean_image_per_user)**2 for u in views))/number_of_different_users)
+mean_user_per_image = sum(image_views[i] for i in image_views) / number_of_different_images
+de_user_per_image = math.sqrt((sum((image_views[i] - mean_user_per_image)**2 for i in image_views))/number_of_different_images)
+density = total_number_of_interactions / (number_of_different_users * number_of_different_images)
+sparsity = 1 - density
+
+print("stats:")
+print("number of users:", number_of_different_users)
+print("number of images:", number_of_different_images)
+print("mean_image_per_user:", mean_image_per_user)
+print("de_image_per_user:", de_image_per_user)
+print("mean_user_per_image:", mean_user_per_image)
+print("de_user_per_image:", de_user_per_image)
+print("density:", density)
+print("sparsity:", sparsity)
+# finish stats
+
+
 # lets graph!
 user_graph_data = [] # (number_of_interactions, number_of_users rango de 3)
 for k in user_interaction:
@@ -75,7 +100,7 @@ for x, y in user_graph_data:
     counter += y
     if count == 0:
         x_name = str(x) + '-'
-    if count == 5:
+    if count == 3:
         x_name += str(x)
         new_graph_data.append((x_name, counter))
         count = -1
@@ -86,7 +111,15 @@ plt.bar([i[0] for i in new_graph_data], [j[1] for j in new_graph_data])
 plt.xlabel('Numero de interacciones', fontsize=15)
 plt.ylabel('Numero de usuarios', fontsize=15)
 plt.xticks([i[0] for i in new_graph_data], [i[0] for i in new_graph_data], rotation=70)
-#plt.show()
+plt.plot([i[0] for i in new_graph_data], [j[1] for j in new_graph_data], 'r-')
+plt.show()
+
+# simple graph
+plt.bar([i[0] for i in user_graph_data], [j[1] for j in user_graph_data])
+plt.xlabel('Numero de interacciones', fontsize=15)
+plt.ylabel('Numero de usuarios', fontsize=15)
+plt.plot([i[0] for i in user_graph_data], [j[1] for j in user_graph_data], 'r-')
+plt.show()
 print("los 5 usuarios mas activos son :", top_five_users)
 
 total_interactions = 0
@@ -113,6 +146,7 @@ print("made by in top 5 images", interactions_in_top_5_images)
 
 plt.xlabel('Numero de interacciones', fontsize=15)
 plt.ylabel('Numero de imagenes', fontsize=15)
-plt.bar([str(i[0]) for i in image_graph_data], [j[1] for j in image_graph_data])
-#plt.show()
+plt.bar([i[0] for i in image_graph_data], [j[1] for j in image_graph_data])
+plt.plot([i[0] for i in image_graph_data], [j[1] for j in image_graph_data], 'r--')
+plt.show()
 print("los 5 imagenes mas vistas son :", top_five_image)
