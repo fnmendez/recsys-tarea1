@@ -28,7 +28,7 @@ def evaluate_model(model, n):
   return mean_map, mean_ndcg
 
 def show_recommendations(model, user, n):
-  recommendations = [t[0] for t in model.recommend(user, user_item_matrix, n)]
+  recommendations = [items_ids_inv[t[0]] for t in model.recommend(user, user_item_matrix, n)]
   return recommendations
 
 def show_similar_item(model, item, n=10):
@@ -82,29 +82,30 @@ user_item_matrix = matrix.T.tocsr()
 # ALS
 
 # tiempos e hiperparametros
-test_factors = [50, 100, 200] #, 500, 1000]
-test_iterations = [15, 20, 60]#, 140, 200]
+test_factors = [50, 100, 200, 500, 1000]
+test_iterations = [15, 20, 60, 140, 200]
 test_regulazation = [0.01, 0.1, 0.15, 0.2, 0.5]
 
-test_lr = [0.001, 0.01] # ???
+test_lr = [0.001, 0.01, 0.02, 0.05]
 
 def graph_als_test_factors():
     maprec_results = []
     ndcg_results = []
-    # time = time.time()
     for f in test_factors:
+        my_time = time.time()
         # iterations default number is 15
         model_als = implicit.als.AlternatingLeastSquares(factors=f)
         model_als.fit(matrix)
         maprec, ndcg = evaluate_model(model_als, n=10)
-        # print('map: {}\nndcg: {}'.format(maprec, ndcg))
         maprec_results.append(maprec)
         ndcg_results.append(ndcg)
+        recommendations = show_recommendations(model_als, 0, 5)
+        print("recomendaciones als factor: ", f, recommendations)
+        my_time = time.time() - my_time
+        print("timepo de entrenamiento als facotr: ",f, my_time)
 
-    # time = time.time() - time
-    # print("timepo de entrenamiento: ", time)
-    print(maprec_results)
-    print(ndcg_results)
+    print("maprec: ", maprec_results)
+    print("ndcg: ", ndcg_results)
 
     plt.plot(test_factors, maprec_results, 'r-')
     plt.xlabel('factor latente', fontsize=15)
@@ -121,13 +122,16 @@ def graph_als_test_iterations():
     ndcg_results = []
     for i in test_iterations:
         # iterations default number is 15
+        my_time = time.time()
         model_als = implicit.als.AlternatingLeastSquares(iterations=i)
         model_als.fit(matrix)
         maprec, ndcg = evaluate_model(model_als, n=10)
-        print('map: {}\nndcg: {}'.format(maprec, ndcg))
-
         maprec_results.append(maprec)
         ndcg_results.append(ndcg)
+        recommendations = show_recommendations(model_als, 0, 5)
+        print("recomendaciones: ", i,":", recommendations)
+        my_time = time.time() - my_time
+        print("timepo: ",i,":", my_time)
 
     print(maprec_results)
     print(ndcg_results)
@@ -147,13 +151,16 @@ def graph_als_test_regulazation():
     ndcg_results = []
     for r in test_regulazation:
         # iterations default number is 15
+        my_time = time.time()
         model_als = implicit.als.AlternatingLeastSquares(regularization=r)
         model_als.fit(matrix)
         maprec, ndcg = evaluate_model(model_als, n=10)
-        print('map: {}\nndcg: {}'.format(maprec, ndcg))
-
         maprec_results.append(maprec)
         ndcg_results.append(ndcg)
+        recommendations = show_recommendations(model_als, 0, 5)
+        print("recomendaciones: ", r,":", recommendations)
+        my_time = time.time() - my_time
+        print("timepo: ",r,":", my_time)
 
     print(maprec_results)
     print(ndcg_results)
@@ -174,13 +181,18 @@ def graph_bpr_test_factors():
     maprec_results = []
     ndcg_results = []
     for f in test_factors:
+        my_time = time.time()
         model_bpr = implicit.bpr.BayesianPersonalizedRanking(factors=f)
         model_bpr.fit(matrix)
         maprec, ndcg = evaluate_model(model_bpr, n=10)
         maprec_results.append(maprec)
         ndcg_results.append(ndcg)
+        recommendations = show_recommendations(model_bpr, 0, 5)
+        print("recomendaciones: ", f,":", recommendations)
+        my_time = time.time() - my_time
+        print("timepo: ",f,":", my_time)
 
-    plt.plot(test_factors, maprec_results, 'b-')
+    plt.plot(test_factors, maprec_results, 'r-')
     plt.xlabel('factor latente', fontsize=15)
     plt.ylabel('map@10', fontsize=15)
     plt.show()
@@ -194,13 +206,18 @@ def graph_bpr_test_iterations():
     maprec_results = []
     ndcg_results = []
     for i in test_iterations:
+        my_time = time.time()
         model_bpr = implicit.bpr.BayesianPersonalizedRanking(iterations=i)
         model_bpr.fit(matrix)
         maprec, ndcg = evaluate_model(model_bpr, n=10)
         maprec_results.append(maprec)
         ndcg_results.append(ndcg)
+        recommendations = show_recommendations(model_bpr, 0, 5)
+        print("recomendaciones: ", i,":", recommendations)
+        my_time = time.time() - my_time
+        print("timepo: ",i,":", my_time)
 
-    plt.plot(test_iterations, maprec_results, 'b-')
+    plt.plot(test_iterations, maprec_results, 'r-')
     plt.xlabel('iteraciones', fontsize=15)
     plt.ylabel('map@10', fontsize=15)
     plt.show()
@@ -214,11 +231,17 @@ def graph_bpr_test_regulazation():
     maprec_results = []
     ndcg_results = []
     for r in test_regulazation:
+        my_time = time.time()
         model_bpr = implicit.bpr.BayesianPersonalizedRanking(regularization=r)
+        model_bpr.fit(matrix)
         model_bpr.fit(matrix)
         maprec, ndcg = evaluate_model(model_bpr, n=10)
         maprec_results.append(maprec)
         ndcg_results.append(ndcg)
+        recommendations = show_recommendations(model_bpr, 0, 5)
+        print("recomendaciones: ", r,":", recommendations)
+        my_time = time.time() - my_time
+        print("tiempo: ",r,":", my_time)
 
     plt.plot(test_regulazation, maprec_results, 'b-')
     plt.xlabel('regularization', fontsize=15)
@@ -234,13 +257,20 @@ def graph_bpr_test_lr():
     maprec_results = []
     ndcg_results = []
     for l in test_lr:
+        my_time = time.time()
+
         model_bpr = implicit.bpr.BayesianPersonalizedRanking(learning_rate=l)
+
         model_bpr.fit(matrix)
         maprec, ndcg = evaluate_model(model_bpr, n=10)
         maprec_results.append(maprec)
         ndcg_results.append(ndcg)
+        recommendations = show_recommendations(model_bpr, 0, 5)
+        print("recomendaciones: ", l,":", recommendations)
+        my_time = time.time() - my_time
+        print("tiempo: ",l,":", my_time)
 
-    plt.plot(test_lr, maprec_results, 'b-')
+    plt.plot(test_lr, maprec_results, 'r-')
     plt.xlabel('learning rate', fontsize=15)
     plt.ylabel('map@10', fontsize=15)
     plt.show()
@@ -250,5 +280,55 @@ def graph_bpr_test_lr():
     plt.ylabel('nDCG@10', fontsize=15)
     plt.show()
 
+def compare_best_models():
+    model_als = implicit.als.AlternatingLeastSquares(
+                            factors=50,
+                            iterations = 140,
+                            regularization=0.15)
 
+    model_als.fit(matrix)
+    maprec, ndcg = evaluate_model(model_als, n=10)
+    print("A",maprec, ndcg)
+
+    model_bpr = implicit.bpr.BayesianPersonalizedRanking(
+                            factors=150,
+                            iterations = 15,
+                            regularization=0.15,
+                            learning_rate=0.01)
+    model_bpr.fit(matrix)
+    maprec, ndcg = evaluate_model(model_bpr, n=10)
+    print("B",maprec, ndcg)
+
+def write_recommendations_best_model():
+    model_bpr = implicit.bpr.BayesianPersonalizedRanking(
+                            factors=150,
+                            iterations = 15,
+                            regularization=0.5,
+                            learning_rate=0.01)
+    model_bpr.fit(matrix)
+
+    fo = open("files/test.csv", "r")
+    fw = open("results.json", "w+")
+    fw.write("{\n")
+    fo.readline()
+    for u in fo.readlines():
+        u = int(u.strip())
+        nu = user_ids[u]
+        recommendations = show_recommendations(model=model_bpr, user=nu, n=10)
+        fw.write('"'+str(u)+'"'+": ")
+        fw.write(str(recommendations) + "," + "\n")
+
+    fw.write("}\n")
+    fw.close()
+    fo.close()
+
+write_recommendations_best_model()
+
+"""
+graph_als_test_iterations()
+graph_als_test_regulazation()
+graph_bpr_test_factors()
+graph_bpr_test_iterations()
+graph_bpr_test_regulazation()
 graph_bpr_test_lr()
+"""
